@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const int MAX_PRODUCTS = 100;
+const int MAX_PRODUCTS = 100; // max amount of products that can be stored
 Product products[MAX_PRODUCTS];
 int productCount = 0;
 

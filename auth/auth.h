@@ -1,6 +1,6 @@
-#ifndef AUTHUSER_H
-#define AUTHUSER_H
+#ifndef AUTHUSER_H // if authuser not defined it will move to the next
+#define AUTHUSER_H // define authuser
 
-void authUser();
+void authUser(); // function declaration
 
 #endif

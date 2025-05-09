@@ -1,23 +1,26 @@
-#ifndef PRODUCT_H
-#define PRODUCT_H
+#ifndef PRODUCT_H // if product not defined it will move to the next
+#define PRODUCT_H // define product
 
 #include <string>
-#include <sqlite3.h>
+#include <sqlite3.h> // used for sqlite3 database
 
+using namespace std;
+
+// Product structure
 struct Product {
     int id;
-    std::string name;
-    std::string category;
+    string name;
+    string category;
     double price;
     int quantity;
 };
 
 // Function declarations
-void addProduct(int id, std::string name, std::string category, double price, int quantity);
+void addProduct(int id, string name, string category, double price, int quantity);
 void removeProduct(int id);
 void findProduct(int id);
-void updateProduct(int id, std::string name, std::string category, double price, int quantity);
-void showAllProducts();  // Added this declaration
+void updateProduct(int id, string name, string category, double price, int quantity);
+void showAllProducts();  
 void printProducts();
 
 #endif // PRODUCT_H

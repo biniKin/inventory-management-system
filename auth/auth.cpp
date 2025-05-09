@@ -1,9 +1,10 @@
 #include <iostream>
-#include <cstdlib>
-#include "auth.h"
+#include <cstdlib> // C++ standard library for using "exit()"
+#include "auth.h" // include the header file for authUser function
 
 using namespace std;
 
+// define function authuser
 void authUser() {
     const string correctUserName = "admin";
     const int correctPassword = 123;

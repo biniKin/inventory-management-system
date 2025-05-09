@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <fstream>
 #include <limits>
 #include "headerText/headerText.h"
 #include "auth/auth.h"
@@ -11,7 +10,7 @@
 using namespace std;
 
 int main(){
-    header(); 
+    header(); // for header text (intro text) 
     authUser();
 
     sqlite3* db = nullptr;
