@@ -151,6 +151,8 @@ bool addProductDB(sqlite3* db, int id, const std::string& name, const std::strin
 }
 
 
+/* REMOVE PRODUCT */
+
 bool removeProductDB(sqlite3* db, int id) {
     sqlite3_stmt* stmt;
     const char* sql = "DELETE FROM products WHERE id = ?;";
@@ -242,6 +244,10 @@ bool printProductsDB(sqlite3* db) {
     
     return true;
 }
+
+
+//---------------------------------------------------------------------
+
 
 bool findProductDB(sqlite3* db, int id) {
     sqlite3_stmt* stmt;
