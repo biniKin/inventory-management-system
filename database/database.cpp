@@ -12,7 +12,6 @@ bool initializeDatabase(sqlite3*& db) {
         return false;
     }
     
-    // Create products table if it doesn't exist
     const char* createProductsTableSQL = 
         "CREATE TABLE IF NOT EXISTS products ("
         "id INTEGER PRIMARY KEY,"
@@ -30,7 +29,6 @@ bool initializeDatabase(sqlite3*& db) {
         return false;
     }
     
-    // Create users table if it doesn't exist
     const char* createUsersTableSQL = 
         "CREATE TABLE IF NOT EXISTS users ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -47,7 +45,6 @@ bool initializeDatabase(sqlite3*& db) {
         return false;
     }
     
-    // Check if default users exist, if not add them
     const char* checkUsersSQL = "SELECT COUNT(*) FROM users;";
     sqlite3_stmt* stmt;
     rc = sqlite3_prepare_v2(db, checkUsersSQL, -1, &stmt, nullptr);
@@ -66,7 +63,6 @@ bool initializeDatabase(sqlite3*& db) {
     
     sqlite3_finalize(stmt);
     
-    // Add default users if none exist
     if (userCount == 0) {
         const char* addDefaultUsersSQL = 
             "INSERT INTO users (username, password, role) VALUES "
@@ -118,6 +114,88 @@ UserRole authenticateUser(sqlite3* db, const std::string& username, const std::s
     return role;
 }
 
+static int displayCallback(void* data, int argc, char** argv, char** colNames) {
+    for (int i = 0; i < argc; i++) {
+        std::cout << colNames[i] << ": " << (argv[i] ? argv[i] : "NULL") << std::endl;
+    }
+    std::cout << "------------------------" << std::endl;
+    return 0;
+}
+
+bool addProductDB(sqlite3* db, int id, const std::string& name, const std::string& category, double price, int quantity) {
+    sqlite3_stmt* stmt;
+    const char* sql = "INSERT INTO products (id, name, category, price, quantity) VALUES (?, ?, ?, ?, ?);";
+    
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "SQL prepare error: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+    
+    sqlite3_bind_int(stmt, 1, id);
+    sqlite3_bind_text(stmt, 2, name.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, category.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_double(stmt, 4, price);
+    sqlite3_bind_int(stmt, 5, quantity);
+    
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    
+    if (rc != SQLITE_DONE) {
+        std::cerr << "SQL execution error: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+    
+    std::cout << "Product added successfully. called on db" << std::endl;
+    return true;
+}
+
+bool findProductDB(sqlite3* db, int id) {
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT * FROM products WHERE id = ?;";
+    
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "SQL prepare error: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+    
+    sqlite3_bind_int(stmt, 1, id);
+    
+    bool found = false;
+    
+    std::cout << "\n+-------+----------------------+----------------------+------------+------------+" << std::endl;
+    std::cout << "| ID    | Name                 | Category             | Price      | Quantity   |" << std::endl;
+    std::cout << "+-------+----------------------+----------------------+------------+------------+" << std::endl;
+    
+    if ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        found = true;
+        
+        int productId = sqlite3_column_int(stmt, 0);
+        const char* name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        const char* category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        double price = sqlite3_column_double(stmt, 3);
+        int quantity = sqlite3_column_int(stmt, 4);
+        
+      
+        std::cout << "| " << std::left << std::setw(5) << productId << " | " 
+                  << std::setw(20) << (name ? std::string(name).substr(0, 20) : "NULL") << " | "
+                  << std::setw(20) << (category ? std::string(category).substr(0, 20) : "NULL") << " | $"
+                  << std::right << std::setw(9) << std::fixed << std::setprecision(2) << price << " | "
+                  << std::setw(10) << quantity << " |" << std::endl;
+    }
+    
+   
+    std::cout << "+-------+----------------------+----------------------+------------+------------+" << std::endl;
+    
+    sqlite3_finalize(stmt);
+    
+    if (!found) {
+        std::cout << "Product with ID " << id << " not found." << std::endl;
+    }
+    
+    return found;
+}
 
 
 
