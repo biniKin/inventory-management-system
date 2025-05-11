@@ -293,6 +293,117 @@ bool printProductsDB(sqlite3* db) {
 }
 
 }
+void closeDatabase(sqlite3 *db)
+{
+    if (db)
+    {
+        sqlite3_close(db);
+        std::cout << "Database connection closed." << std::endl;
+    }
+}
+
+bool checkUsernameExists(sqlite3 *db, const std::string &username)
+{
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT COUNT(*) FROM users WHERE username = ?;";
+
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK)
+    {
+        std::cerr << "SQL prepare error: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    int count = 0;
+
+    if (rc == SQLITE_ROW)
+    {
+        count = sqlite3_column_int(stmt, 0);
+    }
+
+    sqlite3_finalize(stmt);
+    return count > 0;
+}
+
+bool registerUser(sqlite3 *db, const std::string &username, const std::string &password, const std::string &role)
+{
+    // Check if username already exists
+    if (checkUsernameExists(db, username))
+    {
+        std::cerr << "Username already exists. Please choose a different username." << std::endl;
+        return false;
+    }
+
+    sqlite3_stmt *stmt;
+    const char *sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?);";
+
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK)
+    {
+        std::cerr << "SQL prepare error: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, role.c_str(), -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+
+    if (rc != SQLITE_DONE)
+    {
+        std::cerr << "SQL execution error: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_finalize(stmt);
+        return false;
+    }
+
+    sqlite3_finalize(stmt);
+    std::cout << "User registered successfully!" << std::endl;
+    return true;
+}
+
+bool listAllUsers(sqlite3 *db)
+{
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT username, role FROM users ORDER BY role, username;";
+
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK)
+    {
+        std::cerr << "SQL prepare error: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+
+    std::cout << "\nRegistered Users:" << std::endl;
+    std::cout << "+----------------------+----------+" << std::endl;
+    std::cout << "| Username             | Role     |" << std::endl;
+    std::cout << "+----------------------+----------+" << std::endl;
+
+    bool found = false;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+    {
+        found = true;
+        std::string username = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
+        std::string role = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+
+        std::cout << "| " << std::left << std::setw(20) << username << " | "
+                  << std::setw(8) << role << " |" << std::endl;
+    }
+
+    std::cout << "+----------------------+----------+" << std::endl;
+
+    sqlite3_finalize(stmt);
+
+    if (!found)
+    {
+        std::cout << "No users found in the database." << std::endl;
+    }
+
+    return true;
+}
 
 
 
