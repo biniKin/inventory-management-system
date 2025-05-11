@@ -8,7 +8,6 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "${workspaceFolder}\\main.cpp",
-                "${workspaceFolder}\\product\\product.cpp",
                 "${workspaceFolder}\\auth\\auth.cpp",
                 "${workspaceFolder}\\headerText\\headerText.cpp",
                 "${workspaceFolder}\\database\\database.cpp",
@@ -32,6 +31,7 @@
     ],
     "version": "2.0.0"
 }
+
 
 
 
