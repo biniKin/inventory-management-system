@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include "headerText.h" // Include the header file inorder to define the function
+#include "headerText.h" 
 
 using namespace std;
 
