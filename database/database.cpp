@@ -151,9 +151,56 @@ bool addProductDB(sqlite3* db, int id, const std::string& name, const std::strin
 }
 
 
-/* REMOVE PRODUCT */
+bool findProductDB(sqlite3* db, int id) {
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT * FROM products WHERE id = ?;";
+    
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "SQL prepare error: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+    
+    sqlite3_bind_int(stmt, 1, id);
+    
+    bool found = false;
+    
+    std::cout << "\n+-------+----------------------+----------------------+------------+------------+" << std::endl;
+    std::cout << "| ID    | Name                 | Category             | Price      | Quantity   |" << std::endl;
+    std::cout << "+-------+----------------------+----------------------+------------+------------+" << std::endl;
+    
+    if ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        found = true;
+        
+        int productId = sqlite3_column_int(stmt, 0);
+        const char* name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        const char* category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        double price = sqlite3_column_double(stmt, 3);
+        int quantity = sqlite3_column_int(stmt, 4);
+        
+      
+        std::cout << "| " << std::left << std::setw(5) << productId << " | " 
+                  << std::setw(20) << (name ? std::string(name).substr(0, 20) : "NULL") << " | "
+                  << std::setw(20) << (category ? std::string(category).substr(0, 20) : "NULL") << " | $"
+                  << std::right << std::setw(9) << std::fixed << std::setprecision(2) << price << " | "
+                  << std::setw(10) << quantity << " |" << std::endl;
+    }
+    
+   
+    std::cout << "+-------+----------------------+----------------------+------------+------------+" << std::endl;
+    
+    sqlite3_finalize(stmt);
+    
+    if (!found) {
+        std::cout << "Product with ID " << id << " not found." << std::endl;
+    }
+    
+    return found;
 
-bool removeProductDB(sqlite3* db, int id) {
+
+    /* REMOVE PRODUCT*/
+
+    bool removeProductDB(sqlite3* db, int id) {
     sqlite3_stmt* stmt;
     const char* sql = "DELETE FROM products WHERE id = ?;";
     
@@ -245,55 +292,6 @@ bool printProductsDB(sqlite3* db) {
     return true;
 }
 
-
-//---------------------------------------------------------------------
-
-
-bool findProductDB(sqlite3* db, int id) {
-    sqlite3_stmt* stmt;
-    const char* sql = "SELECT * FROM products WHERE id = ?;";
-    
-    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-    if (rc != SQLITE_OK) {
-        std::cerr << "SQL prepare error: " << sqlite3_errmsg(db) << std::endl;
-        return false;
-    }
-    
-    sqlite3_bind_int(stmt, 1, id);
-    
-    bool found = false;
-    
-    std::cout << "\n+-------+----------------------+----------------------+------------+------------+" << std::endl;
-    std::cout << "| ID    | Name                 | Category             | Price      | Quantity   |" << std::endl;
-    std::cout << "+-------+----------------------+----------------------+------------+------------+" << std::endl;
-    
-    if ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        found = true;
-        
-        int productId = sqlite3_column_int(stmt, 0);
-        const char* name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-        const char* category = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-        double price = sqlite3_column_double(stmt, 3);
-        int quantity = sqlite3_column_int(stmt, 4);
-        
-      
-        std::cout << "| " << std::left << std::setw(5) << productId << " | " 
-                  << std::setw(20) << (name ? std::string(name).substr(0, 20) : "NULL") << " | "
-                  << std::setw(20) << (category ? std::string(category).substr(0, 20) : "NULL") << " | $"
-                  << std::right << std::setw(9) << std::fixed << std::setprecision(2) << price << " | "
-                  << std::setw(10) << quantity << " |" << std::endl;
-    }
-    
-   
-    std::cout << "+-------+----------------------+----------------------+------------+------------+" << std::endl;
-    
-    sqlite3_finalize(stmt);
-    
-    if (!found) {
-        std::cout << "Product with ID " << id << " not found." << std::endl;
-    }
-    
-    return found;
 }
 
 
