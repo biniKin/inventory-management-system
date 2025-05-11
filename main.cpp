@@ -9,7 +9,7 @@
 using namespace std;
 
 int main() {
-    header(); // for header text (intro text) 
+    header();
     
     sqlite3* db = nullptr;
     if (!initializeDatabase(db)) {
@@ -19,14 +19,14 @@ int main() {
     
     UserRole role = authUser(db);
 
-    // main menu
+   
     char choice;
     do {
         cout << "\nINVENTORY MANAGEMENT SYSTEM" << endl;
         cout << "----------------------------" << endl;
         
         if (role == ROLE_ADMIN) {
-            // Admin menu
+           
             cout << "1. Add a product" << endl;
             cout << "2. Remove a product" << endl;
             cout << "3. Find a product" << endl;
@@ -36,7 +36,7 @@ int main() {
             cout << "7. Manage users" << endl;
             cout << "Q. Quit" << endl;
         } else {
-            // User menu (limited options)
+            
             cout << "1. Find a product" << endl;
             cout << "2. View all products" << endl;
             cout << "3. Show total product count" << endl;
@@ -45,10 +45,10 @@ int main() {
         
         cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
         
         if (role == ROLE_ADMIN) {
-            // Admin menu options
+           
             switch (choice) {
             case '1': {
                 int id, quantity;
@@ -56,7 +56,7 @@ int main() {
                 double price;
                 cout << "Enter ID: ";
                 cin >> id;
-                cin.ignore(); // Clear the newline character
+                cin.ignore(); 
                 cout << "Enter Name: ";
                 getline(cin, name);
                 cout << "Enter Category: ";
@@ -92,7 +92,7 @@ int main() {
                 double price;
                 cout << "Enter ID to update: ";
                 cin >> id;
-                cin.ignore(); // Clear the newline character
+                cin.ignore(); 
                 cout << "Enter new Name: ";
                 getline(cin, name);
                 cout << "Enter new Category: ";
@@ -112,7 +112,7 @@ int main() {
                 printProductsDB(db);
                 break;
             case '6':
-                showProductCount(db);  // Changed from showAllProducts()
+                showProductCount(db);  
                 break;
             case '7':
                 manageUsers(db);
@@ -126,7 +126,7 @@ int main() {
                 cout << "Invalid choice." << endl;
             }
         } else {
-            // User menu options (limited)
+            
             switch (choice) {
             case '1': {
                 int id;
@@ -139,7 +139,7 @@ int main() {
                 printProductsDB(db);
                 break;
             case '3':
-                showProductCount(db);  // Changed from showAllProducts()
+                showProductCount(db);  
                 break;
             case 'Q':
             case 'q':
@@ -152,7 +152,7 @@ int main() {
         }
     } while (true);
 
-    // This should never be reached, but just in case
+    
     closeDatabase(db);
     return 0;
 }
